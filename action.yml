@@ -17,31 +17,39 @@ runs:
         fetch-depth: 2
     - id: changes
       uses: tj-actions/changed-files@v45
+      with:
+        safe_output: false
+        files_ignore: |
+          .*
+          .*/**
     - shell: bash
       env:
+        a: ${{ steps.changes.outputs.added_files }}
+        m: ${{ steps.changes.outputs.modified_files }}
+        d: ${{ steps.changes.outputs.deleted_files }}
         URL_BASE: https://app.mastory.io/api/content
       run: |
         echo "Your scope is ${{ inputs.scope }}"
 
         echo "Processing added files"
-        for file in ${{ steps.changes.outputs.added_files }}; do
+        for file in $a; do
           echo "- adding $file ..."
           echo -n "  "
-          curl -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
         done
 
         echo "Processing modified files"
-        for file in ${{ steps.changes.outputs.modified_files }}; do
+        for file in $m; do
           echo "- updating $file ..."
           echo -n "  "
-          curl -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          curl --fail-with-body -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
         done
 
         echo "Processing deleted files"
-        for file in ${{ steps.changes.outputs.deleted_files }}; do
+        for file in $d; do
           echo "- deleting $file ..."
           echo -n "  "
-          curl -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+          curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
         done
 
       # echo "Processing renamed files"
