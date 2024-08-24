@@ -26,19 +26,22 @@ runs:
         echo "Processing added files"
         for file in ${{ steps.changes.outputs.added_files }}; do
           echo "- adding $file ..."
-          curl -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          echo -n "  "
+          curl -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
         done
 
         echo "Processing modified files"
         for file in ${{ steps.changes.outputs.modified_files }}; do
           echo "- updating $file ..."
-          curl -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          echo -n "  "
+          curl -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
         done
 
         echo "Processing deleted files"
         for file in ${{ steps.changes.outputs.deleted_files }}; do
           echo "- deleting $file ..."
-          curl -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+          echo -n "  "
+          curl -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
         done
 
       # echo "Processing renamed files"
