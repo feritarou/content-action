@@ -1,0 +1,15 @@
+name: Mastory Content Action
+description: Propagates changes to your repository so they become directly available in Mastory.
+
+inputs:
+  scope:
+    description: Your content contributor scope (by default, your GitHub user or organization name). Check your profile page on mastory.io if you are unsure what your scope name is.
+    required: false
+    default: mastoryberlin
+
+runs:
+  using: composite
+  steps:
+    - name: Run Script
+      run: ${GITHUB_ACTION_PATH}/script.sh ${{ inputs.scope }}
+      shell: bash
