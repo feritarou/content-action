@@ -10,6 +10,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    - uses: tj-actions/changed-files@v45
     - name: Run Script
       run: ${GITHUB_ACTION_PATH}/script.sh ${{ inputs.scope }}
       shell: bash
+      env:
+        ADDED_FILES: ${{ steps.changed-files.outputs.added_files }}
