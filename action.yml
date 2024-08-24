@@ -5,8 +5,10 @@ inputs:
   scope:
     description: Your content contributor scope (by default, your GitHub user or organization name). Check your profile page on mastory.io if you are unsure what your scope name is.
     required: false
-    default: mastoryberlin
-
+    default: ${{ github.repository_owner_id }}
+  api_key:
+    description: Your Mastory API key.
+    required: true
 runs:
   using: composite
   steps:
@@ -17,35 +19,33 @@ runs:
       uses: tj-actions/changed-files@v45
     - shell: bash
       env:
-        a: ${{ steps.changes.outputs.added_files }}
-        c: ${{ steps.changes.outputs.copied_files }}
-        d: ${{ steps.changes.outputs.deleted_files }}
-        m: ${{ steps.changes.outputs.modified_files }}
-        r: ${{ steps.changes.outputs.renamed_files }}
+        URL_BASE: https://app.mastory.io/api/content
       run: |
         echo "Your scope is ${{ inputs.scope }}"
 
         echo "Processing added files"
         for file in ${{ steps.changes.outputs.added_files }}; do
-          echo "- $file ..."
-        done
-
-        echo "Processing copied files"
-        for file in ${{ steps.changes.outputs.copied_files }}; do
-          echo "- $file ..."
+          echo "- adding $file ..."
+          curl -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
         done
 
         echo "Processing modified files"
         for file in ${{ steps.changes.outputs.modified_files }}; do
-          echo "- $file ..."
+          echo "- updating $file ..."
+          curl -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
         done
 
         echo "Processing deleted files"
         for file in ${{ steps.changes.outputs.deleted_files }}; do
-          echo "- $file ..."
+          echo "- deleting $file ..."
+          curl -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
         done
 
-        echo "Processing renamed files"
-        for file in ${{ steps.changes.outputs.renamed_files }}; do
-          echo "- $file ..."
-        done
+      # echo "Processing renamed files"
+      # for file in ${{ steps.changes.outputs.renamed_files }}; do
+      #   echo "- $file ..."
+      # done
+      # echo "Processing copied files"
+      # for file in ${{ steps.changes.outputs.copied_files }}; do
+      #   echo "- $file ..."
+      # done
