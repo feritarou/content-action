@@ -13,40 +13,39 @@ runs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 2
-    - name: changed-files
+    - id: changes
       uses: tj-actions/changed-files@v45
-    - name: run-script
-      shell: bash
+    - shell: bash
       env:
-        a: ${{ steps.changed-files.outputs.added_files }}
-        c: ${{ steps.changed-files.outputs.copied_files }}
-        d: ${{ steps.changed-files.outputs.deleted_files }}
-        m: ${{ steps.changed-files.outputs.modified_files }}
-        r: ${{ steps.changed-files.outputs.renamed_files }}
+        a: ${{ steps.changes.outputs.added_files }}
+        c: ${{ steps.changes.outputs.copied_files }}
+        d: ${{ steps.changes.outputs.deleted_files }}
+        m: ${{ steps.changes.outputs.modified_files }}
+        r: ${{ steps.changes.outputs.renamed_files }}
       run: |
         echo "Your scope is ${{ inputs.scope }}"
 
         echo "Processing added files"
-        for file in ${{ steps.changed-files.outputs.added_files }}; do
+        for file in ${{ steps.changes.outputs.added_files }}; do
           echo "- $file ..."
         done
 
         echo "Processing copied files"
-        for file in ${{ steps.changed-files.outputs.copied_files }}; do
+        for file in ${{ steps.changes.outputs.copied_files }}; do
           echo "- $file ..."
         done
 
         echo "Processing modified files"
-        for file in ${{ steps.changed-files.outputs.modified_files }}; do
+        for file in ${{ steps.changes.outputs.modified_files }}; do
           echo "- $file ..."
         done
 
         echo "Processing deleted files"
-        for file in ${{ steps.changed-files.outputs.deleted_files }}; do
+        for file in ${{ steps.changes.outputs.deleted_files }}; do
           echo "- $file ..."
         done
 
         echo "Processing renamed files"
-        for file in ${{ steps.changed-files.outputs.renamed_files }}; do
+        for file in ${{ steps.changes.outputs.renamed_files }}; do
           echo "- $file ..."
         done
