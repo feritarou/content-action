@@ -32,6 +32,7 @@ runs:
 
         echo "Clearing content scope ..."
         curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }} -H "x-mastory-api-key: ${{ inputs.api_key }}"
+        echo
 
         echo "Processing all files in the repository ..."
         for file in $(find . -type f -not -wholename './.git/**'); do
@@ -41,6 +42,7 @@ runs:
             echo "- adding ${file:2} ..."
             echo -n "  "
             curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/${file:2} -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "${file:2}"
+            echo
           fi
         done
     - id: changes
@@ -69,6 +71,7 @@ runs:
             echo "- adding $file ..."
             echo -n "  "
             curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+            echo
           fi
         done
 
@@ -80,6 +83,7 @@ runs:
             echo "- updating $file ..."
             echo -n "  "
             curl --fail-with-body -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+            echo
           fi
         done
 
@@ -91,6 +95,7 @@ runs:
             echo "- deleting $file ..."
             echo -n "  "
             curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+            echo
           fi
         done
 
