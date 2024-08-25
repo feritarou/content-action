@@ -9,13 +9,37 @@ inputs:
   api_key:
     description: Your Mastory API key.
     required: true
+  reinit:
+    description: |
+      Re-initializes your content scope based on a full re-evaluation of your repository.
+    default: ''
+  url_base:
+    description: The base URL for calls to the Content API.
+    default: https://app.mastory.io/api/content
 runs:
   using: composite
   steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 2
+    - shell: bash
+      if: inputs.reinit
+      run: |
+        echo "Reinitializing store based on a full repository examination."
+        echo "Your scope is ${{ inputs.scope }}"
+
+        echo "Processing all files in the repository ..."
+        for file in $(find . -type f); do
+          if [ -n "$(echo "${file:2}" | grep -oP '(^|/)\.')" ]; then
+            echo "- ignoring ${file:2} ..."
+          else
+            echo "- adding ${file:2} ..."
+            echo -n "  "
+            curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/${file:2} -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "${file:2}"
+          fi
+        done
     - id: changes
+      if: ! inputs.reinit
       uses: tj-actions/changed-files@v45
       with:
         safe_output: false
@@ -23,39 +47,53 @@ runs:
           .*
           .*/**
     - shell: bash
+      if: ! inputs.reinit
       env:
         a: ${{ steps.changes.outputs.added_files }}
         m: ${{ steps.changes.outputs.modified_files }}
         d: ${{ steps.changes.outputs.deleted_files }}
-        URL_BASE: https://app.mastory.io/api/content
+        URL_BASE: ${{ inputs.url_base }}
       run: |
         echo "Your scope is ${{ inputs.scope }}"
 
         echo "Processing added files"
         for file in $a; do
-          echo "- adding $file ..."
-          echo -n "  "
-          curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
+            echo "- ignoring $file ..."
+          else
+            echo "- adding $file ..."
+            echo -n "  "
+            curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          fi
         done
 
         echo "Processing modified files"
         for file in $m; do
-          echo "- updating $file ..."
-          echo -n "  "
-          curl --fail-with-body -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
+            echo "- ignoring $file ..."
+          else
+            echo "- updating $file ..."
+            echo -n "  "
+            curl --fail-with-body -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+          fi
         done
 
         echo "Processing deleted files"
         for file in $d; do
-          echo "- deleting $file ..."
-          echo -n "  "
-          curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+          if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
+            echo "- ignoring $file ..."
+          else
+            echo "- deleting $file ..."
+            echo -n "  "
+            curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+          fi
         done
 
       # echo "Processing renamed files"
       # for file in ${{ steps.changes.outputs.renamed_files }}; do
       #   echo "- $file ..."
       # done
+      #
       # echo "Processing copied files"
       # for file in ${{ steps.changes.outputs.copied_files }}; do
       #   echo "- $file ..."
