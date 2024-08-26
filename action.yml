@@ -25,13 +25,13 @@ runs:
     - shell: bash
       if: inputs.reinit
       env:
-        URL_BASE: ${{ inputs.url_base }}
+        url: ${{ inputs.url_base }}
       run: |
         echo "Reinitializing store based on a full repository examination."
         echo "Your scope is ${{ inputs.scope }}"
 
         echo "Clearing content scope ..."
-        curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }} -H "x-mastory-api-key: ${{ inputs.api_key }}"
+        curl --fail-with-body -s -X DELETE $url/${{ inputs.scope }} -H "x-mastory-api-key: ${{ inputs.api_key }}"
         echo
 
         echo "Processing all files in the repository ..."
@@ -41,7 +41,7 @@ runs:
           else
             echo "- adding ${file:2} ..."
             echo -n "  "
-            curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/${file:2} -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "${file:2}"
+            curl --fail-with-body -s -X PUT $url/${{ inputs.scope }}/${file:2} -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "${file:2}"
             echo
           fi
         done
@@ -50,7 +50,7 @@ runs:
       uses: tj-actions/changed-files@v45
       with:
         safe_output: false
-        include_all_old_new_renamed_files: true
+        include_all_old_new_renamed_files: 'true'
         old_new_files_separator: '>'
         old_new_separator: '>'
         files_ignore: |
@@ -62,9 +62,10 @@ runs:
         a: ${{ steps.changes.outputs.added_files }}
         m: ${{ steps.changes.outputs.modified_files }}
         d: ${{ steps.changes.outputs.deleted_files }}
-        r: ${{ steps.changes.outpus.all_old_new_renamed_files }}
-        c: ${{ steps.changes.outpus.copied_files }}
-        URL_BASE: ${{ inputs.url_base }}
+        r: ${{ steps.changes.outputs.renamed_files }}
+        r_pairs: ${{ steps.changes.outputs.all_old_new_renamed_files }}
+        c: ${{ steps.changes.outputs.copied_files }}
+        url: ${{ inputs.url_base }}
       run: |
         echo "Your scope is ${{ inputs.scope }}"
 
@@ -75,7 +76,7 @@ runs:
           else
             echo "- adding $file ..."
             echo -n "  "
-            curl --fail-with-body -s -X PUT $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+            curl --fail-with-body -s -X PUT $url/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
             echo
           fi
         done
@@ -87,7 +88,7 @@ runs:
           else
             echo "- updating $file ..."
             echo -n "  "
-            curl --fail-with-body -s -X PATCH $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+            curl --fail-with-body -s -X PATCH $url/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
             echo
           fi
         done
@@ -99,22 +100,28 @@ runs:
           else
             echo "- deleting $file ..."
             echo -n "  "
-            curl --fail-with-body -s -X DELETE $URL_BASE/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+            curl --fail-with-body -s -X DELETE $url/${{ inputs.scope }}/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
             echo
           fi
         done
 
+        echo "RENAME: renamed_files-based approach"
         echo "Processing renamed files"
-        for pair in $r; do
+        for file in $r; do
+          echo "- detected renamed file ${file} - r_pairs is ${r_pairs}"
+        done
+
+        echo "RENAME: pair-based approach"
+        for pair in $r_pairs; do
           old="${pair%>*}"
           new="${pair#*>}"
           echo "- renaming ${old} ---> ${new}"
         done
       
         echo "Processing copied files"
-        for pair in $c; do
-          old="${pair%>*}"
-          new="${pair#*>}"
-          echo "- copying ${old} ---> ${new}"
+        for file in $c; do
+          echo "- $file was reported as copied from tj-actions/changed-files, but there is no handler implemented for this case."
         done
 
+# echo "Please report this issue to felix@mastory.io"
+# exit 1
