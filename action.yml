@@ -110,7 +110,7 @@ runs:
           new="${pair#*>}"
           echo "- renaming ${old} ---> ${new}"
           echo -n "  "
-          curl --fail-with-body -s -X POST $url/${{ inputs.scope }} -H "x-mastory-api-key: ${{ inputs.api_key }}" --data '{"op":"rename","old_name":"'"$old"'","new_name":"'"$new"'"}'
+          curl --fail-with-body -s -X POST $url/${{ inputs.scope }} -H "content-type: application/json" -H "x-mastory-api-key: ${{ inputs.api_key }}" --data '{"op":"rename","old_name":"'"${old}"'","new_name":"'"${new}"'"}'
           echo
         done
       
