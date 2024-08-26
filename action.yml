@@ -62,7 +62,7 @@ runs:
         a: ${{ steps.changes.outputs.added_files }}
         m: ${{ steps.changes.outputs.modified_files }}
         d: ${{ steps.changes.outputs.deleted_files }}
-        r_pairs: ${{ steps.changes.outputs.all_old_new_renamed_files }}
+        r: ${{ steps.changes.outputs.all_old_new_renamed_files }}
         c: ${{ steps.changes.outputs.copied_files }}
         url: ${{ inputs.url_base }}
       run: |
@@ -105,7 +105,7 @@ runs:
         done
 
         echo "Processing renamed files"
-        for pair in $r_pairs; do
+        for pair in $r; do
           old="${pair%>*}"
           new="${pair#*>}"
           echo "- renaming ${old} ---> ${new}"
