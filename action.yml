@@ -50,6 +50,9 @@ runs:
       uses: tj-actions/changed-files@v45
       with:
         safe_output: false
+        include_all_old_new_renamed_files: true
+        old_new_files_separator: '>'
+        old_new_separator: '>'
         files_ignore: |
           .*
           .*/**
@@ -59,6 +62,8 @@ runs:
         a: ${{ steps.changes.outputs.added_files }}
         m: ${{ steps.changes.outputs.modified_files }}
         d: ${{ steps.changes.outputs.deleted_files }}
+        r: ${{ steps.changes.outpus.all_old_new_renamed_files }}
+        c: ${{ steps.changes.outpus.copied_files }}
         URL_BASE: ${{ inputs.url_base }}
       run: |
         echo "Your scope is ${{ inputs.scope }}"
@@ -99,12 +104,17 @@ runs:
           fi
         done
 
-      # echo "Processing renamed files"
-      # for file in ${{ steps.changes.outputs.renamed_files }}; do
-      #   echo "- $file ..."
-      # done
-      #
-      # echo "Processing copied files"
-      # for file in ${{ steps.changes.outputs.copied_files }}; do
-      #   echo "- $file ..."
-      # done
+        echo "Processing renamed files"
+        for pair in $r; do
+          old="${pair%>*}"
+          new="${pair#*>}"
+          echo "- renaming ${old} ---> ${new}"
+        done
+      
+        echo "Processing copied files"
+        for pair in $c; do
+          old="${pair%>*}"
+          new="${pair#*>}"
+          echo "- copying ${old} ---> ${new}"
+        done
+
