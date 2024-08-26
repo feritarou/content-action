@@ -62,7 +62,6 @@ runs:
         a: ${{ steps.changes.outputs.added_files }}
         m: ${{ steps.changes.outputs.modified_files }}
         d: ${{ steps.changes.outputs.deleted_files }}
-        r: ${{ steps.changes.outputs.renamed_files }}
         r_pairs: ${{ steps.changes.outputs.all_old_new_renamed_files }}
         c: ${{ steps.changes.outputs.copied_files }}
         url: ${{ inputs.url_base }}
@@ -105,23 +104,19 @@ runs:
           fi
         done
 
-        echo "RENAME: renamed_files-based approach"
         echo "Processing renamed files"
-        for file in $r; do
-          echo "- detected renamed file ${file} - r_pairs is ${r_pairs}"
-        done
-
-        echo "RENAME: pair-based approach"
         for pair in $r_pairs; do
           old="${pair%>*}"
           new="${pair#*>}"
           echo "- renaming ${old} ---> ${new}"
+          echo -n "  "
+          curl --fail-with-body -s -X POST $url/${{ inputs.scope }} -H "x-mastory-api-key: ${{ inputs.api_key }}" --data '{"op":"rename","old_name":"'"$old"'","new_name":"'"$new"'"}'
+          echo
         done
       
         echo "Processing copied files"
         for file in $c; do
           echo "- $file was reported as copied from tj-actions/changed-files, but there is no handler implemented for this case."
+          echo "Please report this issue to felix@mastory.io"
+          exit 1
         done
-
-# echo "Please report this issue to felix@mastory.io"
-# exit 1
