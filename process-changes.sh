@@ -1,8 +1,5 @@
 #!/bin/bash
-function urlencode() {
-  printf %s "$1" | jq -sRr @uri
-}
-
+source ./urlencode.sh
 echo "Your scope is $scope"
 
 echo "Processing added files"
@@ -11,9 +8,9 @@ for file in $a; do
     echo "- ignoring $file ..."
   else
     echo "- adding $file ..."
-    echo "  (urlencoded name: $(urlencode "$file"))"
+    enc="$(urlencode "$file")"
     echo -n "  "
-    curl --fail-with-body -s -X PUT $url/$scope/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+    curl --fail-with-body -s -X PUT $url/$scope/$enc -H "x-mastory-api-key: $api_key" --upload-file "$file"
     echo
   fi
 done
@@ -24,8 +21,9 @@ for file in $m; do
     echo "- ignoring $file ..."
   else
     echo "- updating $file ..."
+    enc="$(urlencode "$file")"
     echo -n "  "
-    curl --fail-with-body -s -X PATCH $url/$scope/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
+    curl --fail-with-body -s -X PATCH $url/$scope/$enc -H "x-mastory-api-key: $api_key" --upload-file "$file"
     echo
   fi
 done
@@ -36,8 +34,9 @@ for file in $d; do
     echo "- ignoring $file ..."
   else
     echo "- deleting $file ..."
+    enc="$(urlencode "$file")"
     echo -n "  "
-    curl --fail-with-body -s -X DELETE $url/$scope/$file -H "x-mastory-api-key: ${{ inputs.api_key }}"
+    curl --fail-with-body -s -X DELETE $url/$scope/$enc -H "x-mastory-api-key: $api_key"
     echo
   fi
 done
@@ -47,8 +46,10 @@ for pair in $r; do
   old="${pair%>*}"
   new="${pair#*>}"
   echo "- renaming ${old} ---> ${new}"
+  oldenc="$(urlencode "$old")"
+  newenc="$(urlencode "$new")"
   echo -n "  "
-  curl --fail-with-body -s -X POST $url/$scope -H "content-type: application/json" -H "x-mastory-api-key: ${{ inputs.api_key }}" --data '{"op":"rename","old_name":"'"${old}"'","new_name":"'"${new}"'"}'
+  curl --fail-with-body -s -X POST $url/$scope -H "content-type: application/json" -H "x-mastory-api-key: $api_key" --data '{"op":"rename","old_name":"'"${oldenc}"'","new_name":"'"${newenc}"'"}'
   echo
 done
 
