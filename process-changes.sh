@@ -1,5 +1,5 @@
 #!/bin/bash
-source ${GITHUB_ACTION_PATH}/urlencode.sh
+source "${GITHUB_ACTION_PATH}/urlencode.sh"
 echo "Your scope is $scope"
 
 echo "Processing added files"
