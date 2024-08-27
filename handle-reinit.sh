@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./urlencode.sh
+source ${GITHUB_ACTION_PATH}/urlencode.sh
 rel="$1"
 file="${rel:2}"
 if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
