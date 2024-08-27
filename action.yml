@@ -34,6 +34,8 @@ runs:
       uses: tj-actions/changed-files@v45
       with:
         separator: '<'
+        quotepath: 'false'
+        safe_output: 'false'
         include_all_old_new_renamed_files: 'true'
         old_new_files_separator: '>'
         old_new_separator: '>'

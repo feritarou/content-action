@@ -2,9 +2,9 @@
 source "${GITHUB_ACTION_PATH}/urlencode.sh"
 echo "Your scope is $scope"
 
-IFS='<'
 echo "Processing added files"
-for file in "$a"
+IFS='<' read -ra files <<< "$a"
+for file in "${files[@]}"
 do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
@@ -18,7 +18,8 @@ do
 done
 
 echo "Processing modified files"
-for file in "$m"
+IFS='<' read -ra files <<< "$m"
+for file in "${files[@]}"
 do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
@@ -32,7 +33,8 @@ do
 done
 
 echo "Processing deleted files"
-for file in "$d"
+IFS='<' read -ra files <<< "$d"
+for file in "${files[@]}"
 do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
@@ -46,7 +48,8 @@ do
 done
 
 echo "Processing renamed files"
-for pair in "$r"
+IFS='<' read -ra pairs <<< "$r"
+for pair in "${pairs[@]}"
 do
   old="${pair%>*}"
   new="${pair#*>}"
@@ -59,7 +62,8 @@ do
 done
 
 echo "Processing copied files"
-for file in "$c"
+IFS='<' read -ra files <<< "$c"
+for file in "${files[@]}"
 do
   echo "- $file was reported as copied from tj-actions/changed-files, but there is no handler implemented for this case."
   echo "Please report this issue to felix@mastory.io"
