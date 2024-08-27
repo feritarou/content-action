@@ -1,4 +1,8 @@
 #!/bin/bash
+function urlencode() {
+  printf %s "$1" | jq -sRr @uri
+}
+
 echo "Your scope is $scope"
 
 echo "Processing added files"
@@ -7,6 +11,7 @@ for file in $a; do
     echo "- ignoring $file ..."
   else
     echo "- adding $file ..."
+    echo "  (urlencoded name: $(urlencode "$file"))"
     echo -n "  "
     curl --fail-with-body -s -X PUT $url/$scope/$file -H "x-mastory-api-key: ${{ inputs.api_key }}" --upload-file "$file"
     echo
