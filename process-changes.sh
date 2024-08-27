@@ -3,7 +3,8 @@ source "${GITHUB_ACTION_PATH}/urlencode.sh"
 echo "Your scope is $scope"
 
 echo "Processing added files"
-IFS=$'\n' for file in $a; do
+IFS='<' for file in "$a"
+do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
@@ -16,7 +17,8 @@ IFS=$'\n' for file in $a; do
 done
 
 echo "Processing modified files"
-IFS=$'\n' for file in $m; do
+IFS='<' for file in "$m"
+do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
@@ -29,7 +31,8 @@ IFS=$'\n' for file in $m; do
 done
 
 echo "Processing deleted files"
-IFS=$'\n' for file in $d; do
+IFS='<' for file in "$d"
+do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
@@ -42,7 +45,8 @@ IFS=$'\n' for file in $d; do
 done
 
 echo "Processing renamed files"
-IFS=$'\n' for pair in $r; do
+IFS='<' for pair in "$r"
+do
   old="${pair%>*}"
   new="${pair#*>}"
   echo "- renaming ${old} ---> ${new}"
@@ -54,7 +58,8 @@ IFS=$'\n' for pair in $r; do
 done
 
 echo "Processing copied files"
-IFS=$'\n' for file in $c; do
+IFS='<' for file in "$c"
+do
   echo "- $file was reported as copied from tj-actions/changed-files, but there is no handler implemented for this case."
   echo "Please report this issue to felix@mastory.io"
   exit 1
