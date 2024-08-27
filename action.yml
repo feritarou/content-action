@@ -33,7 +33,7 @@ runs:
       id: changes
       uses: tj-actions/changed-files@v45
       with:
-        safe_output: false
+        separator: '<'
         include_all_old_new_renamed_files: 'true'
         old_new_files_separator: '>'
         old_new_separator: '>'

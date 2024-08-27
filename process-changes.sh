@@ -3,7 +3,7 @@ source "${GITHUB_ACTION_PATH}/urlencode.sh"
 echo "Your scope is $scope"
 
 echo "Processing added files"
-for file in $a; do
+IFS=$'\n' for file in $a; do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
@@ -16,7 +16,7 @@ for file in $a; do
 done
 
 echo "Processing modified files"
-for file in $m; do
+IFS=$'\n' for file in $m; do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
@@ -29,7 +29,7 @@ for file in $m; do
 done
 
 echo "Processing deleted files"
-for file in $d; do
+IFS=$'\n' for file in $d; do
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
@@ -42,7 +42,7 @@ for file in $d; do
 done
 
 echo "Processing renamed files"
-for pair in $r; do
+IFS=$'\n' for pair in $r; do
   old="${pair%>*}"
   new="${pair#*>}"
   echo "- renaming ${old} ---> ${new}"
@@ -54,7 +54,7 @@ for pair in $r; do
 done
 
 echo "Processing copied files"
-for file in $c; do
+IFS=$'\n' for file in $c; do
   echo "- $file was reported as copied from tj-actions/changed-files, but there is no handler implemented for this case."
   echo "Please report this issue to felix@mastory.io"
   exit 1
