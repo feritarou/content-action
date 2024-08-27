@@ -22,14 +22,15 @@ runs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 2
-    - shell: bash
-      if: inputs.reinit
+    - if: inputs.reinit
+      run: ${GITHUB_ACTION_PATH}/reinit.sh
+      shell: bash
       env:
         url: ${{ inputs.url_base }}
         scope: ${{ inputs.scope }}
-      run: ./reinit.sh
-    - id: changes
-      if: '!inputs.reinit'
+        api_key: ${{ inputs.api_key }}
+    - if: '!inputs.reinit'
+      id: changes
       uses: tj-actions/changed-files@v45
       with:
         safe_output: false
@@ -39,8 +40,9 @@ runs:
         files_ignore: |
           .*
           .*/**
-    - shell: bash
-      if: '!inputs.reinit'
+    - if: '!inputs.reinit'
+      run: ${GITHUB_ACTION_PATH}/process-changes.sh
+      shell: bash
       env:
         a: ${{ steps.changes.outputs.added_files }}
         m: ${{ steps.changes.outputs.modified_files }}
@@ -49,4 +51,4 @@ runs:
         c: ${{ steps.changes.outputs.copied_files }}
         url: ${{ inputs.url_base }}
         scope: ${{ inputs.scope }}
-      run: ./process-changes.sh
+        api_key: ${{ inputs.api_key }}
