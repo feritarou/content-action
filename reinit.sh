@@ -9,7 +9,7 @@ echo
 
 echo "Processing all files in the repository ..."
 for rel in "$(find . -type f -not -wholename './.git/**')"; do
-  file=${rel:2}
+  file="${rel:2}"
   if [ -n "$(echo "$file" | grep -oP '(^|/)\.')" ]; then
     echo "- ignoring $file ..."
   else
