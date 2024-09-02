@@ -5,7 +5,7 @@ inputs:
   scope:
     description: Your content contributor scope (by default, your GitHub user or organization name). Check your profile page on mastory.io if you are unsure what your scope name is.
     required: false
-    default: ${{ github.repository_owner_id }}
+    default: ${{ github.repository_owner }}
   api_key:
     description: Your Mastory API key.
     required: true
