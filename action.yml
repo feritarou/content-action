@@ -9,6 +9,10 @@ inputs:
   api_key:
     description: Your Mastory API key.
     required: true
+  add:
+    description: |
+      Adds all files in your repository to your content scope, assuming they are not yet present.
+    default: ''
   reinit:
     description: |
       Re-initializes your content scope based on a full re-evaluation of your repository.
@@ -23,13 +27,22 @@ runs:
       with:
         fetch-depth: 2
     - if: inputs.reinit
-      run: ${GITHUB_ACTION_PATH}/reinit.sh
+      run: |
+        echo "Reinitializing your scope to the state of this repository."
+        ${GITHUB_ACTION_PATH}/clear-scope.sh
       shell: bash
       env:
         url: ${{ inputs.url_base }}
         scope: ${{ inputs.scope }}
         api_key: ${{ inputs.api_key }}
-    - if: '!inputs.reinit'
+    - if: inputs.reinit || inputs.add
+      run: ${GITHUB_ACTION_PATH}/add-all-files.sh
+      shell: bash
+      env:
+        url: ${{ inputs.url_base }}
+        scope: ${{ inputs.scope }}
+        api_key: ${{ inputs.api_key }}
+    - if: '!(inputs.reinit || inputs.add)'
       id: changes
       uses: tj-actions/changed-files@v45
       with:
@@ -42,7 +55,7 @@ runs:
         files_ignore: |
           .*
           .*/**
-    - if: '!inputs.reinit'
+    - if: '!(inputs.reinit || inputs.add)'
       run: ${GITHUB_ACTION_PATH}/process-changes.sh
       shell: bash
       env:
